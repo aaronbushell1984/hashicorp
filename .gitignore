@@ -22,3 +22,6 @@
 .terraformrc
 .terraformrc.*
 .vscode/
+
+# IDE
+.idea
