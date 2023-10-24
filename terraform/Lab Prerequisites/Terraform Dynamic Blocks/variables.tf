@@ -3,6 +3,11 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "aws_profile" {
+  type    = string
+  default = "AdministratorAccess-258306410398"
+}
+
 variable "vpc_name" {
   type    = string
   default = "demo_vpc"

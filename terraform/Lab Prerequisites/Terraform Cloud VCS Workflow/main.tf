@@ -6,7 +6,8 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region   = "us-east-1"
+  profile = var.aws_profile
 }
 
 #Retrieve the list of AZs in the current AWS region
@@ -107,7 +108,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  vpc        = true
+  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
