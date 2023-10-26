@@ -1,31 +1,29 @@
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
-}
-
-locals {
-  team        = "api_mgmt_dev"
-  application = "corp_api"
-  server_name = "ec2-${var.environment}-api-${var.public_sub_az}"
 }
 
 #Retrieve the list of AZs in the current AWS region
 data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
 
-# Terraform Data Block - Lookup Ubuntu 16.04
-data "aws_ami" "ubuntu_16_04" {
+# Terraform Data Block - Lookup Ubuntu 20.04
+data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 
   owners = ["099720109477"]
 }
-
 
 #Define the VPC
 resource "aws_vpc" "vpc" {
@@ -35,11 +33,8 @@ resource "aws_vpc" "vpc" {
     Name        = var.vpc_name
     Environment = "demo_environment"
     Terraform   = "true"
-    Region      = data.aws_region.current.name
-
   }
 }
-
 
 #Deploy the private subnets
 resource "aws_subnet" "private_subnets" {
@@ -139,26 +134,47 @@ resource "aws_nat_gateway" "nat_gateway" {
 }
 
 # Terraform Resource Block - To Build EC2 instance in Public Subnet
-resource "aws_instance" "web_server" {
-  ami           = data.aws_ami.ubuntu_16_04.id
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.public_subnets["public_subnet_1"].id
+resource "aws_instance" "web_server" {                            # BLOCK
+  ami           = data.aws_ami.ubuntu.id                          # Argument with data expression
+  instance_type = "t2.micro"                                      # Argument
+  subnet_id     = aws_subnet.public_subnets["public_subnet_1"].id # Argument with value as expression
   tags = {
-    Name  = local.server_name
-    Owner = local.team
-    App   = local.application
+    Name = "Web EC2 Server"
   }
 }
 
-
-resource "aws_subnet" "variables-subnet" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = var.variables_sub_cidr
-  availability_zone       = var.variables_sub_az
-  map_public_ip_on_launch = var.variables_sub_auto_ip
-
+resource "aws_s3_bucket" "my-new-S3-bucket" {
+  bucket = "my-new-tf-test-bucket-${random_id.randomness.hex}"
   tags = {
-    Name      = "sub-variables-${var.variables_sub_az}"
-    Terraform = "true"
+    Name    = "My S3 Bucket"
+    Purpose = "Intro to Resource Blocks Lab"
   }
 }
+resource "aws_s3_bucket_ownership_controls" "my_new_bucket_acl" {
+  bucket = aws_s3_bucket.my-new-S3-bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_security_group" "my-new-security-group" {
+  name        = "web_server_inbound"
+  description = "Allow inbound traffic on tcp/443"
+  vpc_id      = aws_vpc.vpc.id
+  ingress {
+    description = "Allow 443 from the Internet"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name    = "web_server_inbound"
+    Purpose = "Intro to Resource Blocks Lab"
+  }
+}
+
+resource "random_id" "randomness" {
+  byte_length = 16
+}
+

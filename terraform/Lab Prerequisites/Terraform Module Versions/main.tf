@@ -108,7 +108,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
@@ -334,6 +333,14 @@ module "server_subnet_1" {
   security_groups = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
 }
 
+module "server_subnet_2" {
+  source          = "./modules/server"
+  ami             = data.aws_ami.ubuntu.id
+  size            = "t2.micro"
+  subnet_id       = aws_subnet.public_subnets["public_subnet_2"].id
+  security_groups = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
+}
+
 output "public_ip" {
   value = module.server.public_ip
 }
@@ -352,6 +359,13 @@ output "public_ip_server_subnet_1" {
 
 output "public_dns_server_subnet_1" {
   value = module.server_subnet_1.public_dns
+}
+
+output "public_ip_server_subnet_2" {
+  value = module.server_subnet_2.public_ip
+}
+output "public_dns_server_subnet_2" {
+  value = module.server_subnet_2.public_dns
 }
 
 module "autoscaling" {

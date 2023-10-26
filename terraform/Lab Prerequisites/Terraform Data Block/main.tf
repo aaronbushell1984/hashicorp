@@ -9,12 +9,12 @@ data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
 
 # Terraform Data Block - Lookup Ubuntu 20.04
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ubuntu_16_04" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
   }
 
   filter {
@@ -22,7 +22,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"]
+#  owners = ["099720109477"]
 }
 
 #Define the VPC 
@@ -33,6 +33,7 @@ resource "aws_vpc" "vpc" {
     Name        = var.vpc_name
     Environment = "demo_environment"
     Terraform   = "true"
+    Region = data.aws_region.current.name
   }
 }
 
@@ -117,7 +118,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
@@ -136,7 +136,7 @@ resource "aws_nat_gateway" "nat_gateway" {
 
 # Terraform Resource Block - To Build EC2 instance in Public Subnet
 resource "aws_instance" "web_server" {                            # BLOCK
-  ami           = data.aws_ami.ubuntu.id                          # Argument with data expression
+  ami           = data.aws_ami.ubuntu_16_04.id                          # Argument with data expression
   instance_type = "t2.micro"                                      # Argument
   subnet_id     = aws_subnet.public_subnets["public_subnet_1"].id # Argument with value as expression
   tags = {

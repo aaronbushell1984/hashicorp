@@ -114,7 +114,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
@@ -283,6 +282,7 @@ resource "aws_instance" "web_server" {
   security_groups             = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.generated.key_name
+
   connection {
     user        = "ubuntu"
     private_key = tls_private_key.generated.private_key_pem

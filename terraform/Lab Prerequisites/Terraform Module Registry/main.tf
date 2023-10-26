@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -108,7 +108,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
@@ -218,6 +217,9 @@ resource "local_file" "private_key_pem" {
 resource "aws_key_pair" "generated" {
   key_name   = "MyAWSKey"
   public_key = tls_private_key.generated.public_key_openssh
+  lifecycle {
+    ignore_changes = [key_name]
+  }
 }
 
 resource "aws_security_group" "ingress-ssh" {
@@ -383,3 +385,27 @@ output "asg_group_size" {
   value = module.autoscaling.autoscaling_group_max_size
 }
 
+module "s3-bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "3.0.0"
+}
+output "s3_bucket_name" {
+  value = module.s3-bucket.s3_bucket_bucket_domain_name
+}
+
+module "vpc" {
+  source             = "terraform-aws-modules/vpc/aws"
+  version            = "3.19.0"
+  name               = "my-vpc-terraform"
+  cidr               = "10.0.0.0/16"
+  azs                = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets    = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  enable_nat_gateway = true
+  enable_vpn_gateway = true
+  tags = {
+    Name        = "VPC from Module"
+    Terraform   = "true"
+    Environment = "dev"
+  }
+}

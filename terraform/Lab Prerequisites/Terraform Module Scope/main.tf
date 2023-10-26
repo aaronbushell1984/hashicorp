@@ -108,7 +108,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
@@ -377,4 +376,8 @@ module "autoscaling" {
     Name = "Web EC2 Server 2"
   }
 
+}
+
+output "asg_group_size" {
+  value = module.autoscaling.autoscaling_group_max_size
 }

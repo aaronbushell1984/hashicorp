@@ -14,7 +14,7 @@ provider "aws" {
 data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
 
-#Define the VPC 
+#Define the VPC
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
 
@@ -108,7 +108,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"

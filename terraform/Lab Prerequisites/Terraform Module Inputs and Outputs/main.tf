@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -108,7 +108,6 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 #Create EIP for NAT Gateway
 resource "aws_eip" "nat_gateway_eip" {
-  domain = "vpc"
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
     Name = "demo_igw_eip"
@@ -319,6 +318,7 @@ resource "aws_instance" "web_server_2" {
 module "server" {
   source          = "./modules/server"
   ami             = data.aws_ami.ubuntu.id
+  size            = "t2.micro"
   subnet_id       = aws_subnet.public_subnets["public_subnet_3"].id
   security_groups = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
 }
@@ -339,6 +339,10 @@ output "public_ip" {
 
 output "public_dns" {
   value = module.server.public_dns
+}
+
+output "size" {
+  value = module.server.size
 }
 
 output "public_ip_server_subnet_1" {
