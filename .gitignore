@@ -24,7 +24,7 @@
 .vscode/
 
 # Test keys
-*pem
+*.pem
 
 # IDE
 .idea
