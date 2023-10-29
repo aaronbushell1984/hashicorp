@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -394,4 +394,33 @@ output "public_ip_server_subnet_1" {
 
 output "public_dns_server_subnet_1" {
   value = module.server_subnet_1.public_dns
+}
+
+# locals replaced with variable map
+
+#locals {
+#  ingress_rules = [{
+#    port        = 443
+#    description = "Port 443"
+#    },
+#    {
+#      port        = 80
+#      description = "Port 80"
+#    }
+#  ]
+#}
+
+resource "aws_security_group" "main" {
+  name   = "core-sg"
+  vpc_id = aws_vpc.vpc.id
+  dynamic "ingress" {
+    for_each = var.web_ingress
+    content {
+      description = ingress.value.description
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+    }
+  }
 }

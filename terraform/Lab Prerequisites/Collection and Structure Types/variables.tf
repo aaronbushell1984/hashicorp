@@ -58,12 +58,33 @@ variable "variables_sub_auto_ip" {
 }
 
 variable "phone_number" {
-  type = string
+  type      = string
   sensitive = true
-  default = "867-5309"
+  default   = "867-5309"
 }
 
-output "phone_number" {
-  value     = var.phone_number
-  sensitive = true
+variable "us-east-1-azs" {
+  type = list(string)
+  default = [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c",
+    "us-east-1d",
+    "us-east-1e"
+  ]
 }
+
+variable "env" {
+  type = map(any)
+  default = {
+    prod = {
+      ip = "10.0.150.0/24"
+      az = "us-east-1a"
+    }
+    dev  =  {
+      ip = "10.0.250.0/24"
+      az = "us-east-1b"
+    }
+  }
+}
+

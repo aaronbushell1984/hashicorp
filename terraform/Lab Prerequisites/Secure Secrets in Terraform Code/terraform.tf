@@ -1,9 +1,9 @@
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "krausen"
+    organization = "paradaxiom"
     workspaces {
-      name = "my-aws-app"
+      name = "Secure-Secrets-In-Terraform-Code"
     }
   }
   required_version = ">= 1.0.0"

@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -25,51 +25,58 @@ locals {
 locals {
   # Common tags to be assigned to all resources
   common_tags = {
-    Name      = local.server_name
-    Owner     = local.team
-    App       = local.application
-    Service   = local.service_name
-    AppTeam   = local.app_team
-    CreatedBy = local.createdby
+    Name      = lower(local.server_name)
+    Owner     = lower(local.team)
+    App       = lower(local.application)
+    Service   = lower(local.service_name)
+    AppTeam   = lower(local.app_team)
+    CreatedBy = lower(local.createdby)
   }
 }
 
 locals {
   # Common tags to be assigned to all resources
-    prod      = {
-      cidr = "10.0.231.0/24"
-    }
-    dev       = {
-      cidr = "10.0.231.0/24"
-    }
-    App       = local.application
-    Service   = local.service_name
-    AppTeam   = local.app_team
-    CreatedBy = local.createdby
+  prod = {
+    cidr = "10.0.231.0/24"
   }
+  dev = {
+    cidr = "10.0.231.0/24"
+  }
+  App       = local.application
+  Service   = local.service_name
+  AppTeam   = local.app_team
+  CreatedBy = local.createdby
+}
+
+locals {
+  maximum = max(var.num_1, var.num_2, var.num_3)
+  minimum = min(var.num_1, var.num_2, var.num_3, 44, 20)
+}
+
+
 
 #Retrieve the list of AZs in the current AWS region
 data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
 
 data "aws_s3_bucket" "data_bucket" {
-  bucket = "my-data-lookup-bucket-bk"
+  bucket = "paradaxiom-udemy-terraform-data-lookup"
 }
 
 resource "aws_iam_policy" "policy" {
   name        = "data_bucket_policy"
   description = "Allow access to my bucket"
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:Get*",
-                "s3:List*"
-            ],
-            "Resource": "${data.aws_s3_bucket.data_bucket.arn}"
-        }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:Get*",
+          "s3:List*"
+        ],
+        "Resource" : data.aws_s3_bucket.data_bucket.arn
+      }
     ]
   })
 }
@@ -79,9 +86,9 @@ resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
 
   tags = {
-    Name        = var.vpc_name
-    Environment = "production"
-    Terraform   = "true"
+    Name        = upper(var.vpc_name)
+    Environment = upper(var.environment)
+    Terraform   = upper("true")
   }
 
   enable_dns_hostnames = true
@@ -221,7 +228,7 @@ resource "aws_instance" "ubuntu_server" {
   }
 
   # Leave the first part of the block unchanged and create our `local-exec` provisioner
- /*  provisioner "local-exec" {
+  /*  provisioner "local-exec" {
     command = "chmod 600 ${local_file.private_key_pem.filename}"
   } */
 
@@ -343,7 +350,7 @@ resource "aws_instance" "web_server" {
   }
 
   # Leave the first part of the block unchanged and create our `local-exec` provisioner
-/*   provisioner "local-exec" {
+  /*   provisioner "local-exec" {
     command = "chmod 600 ${local_file.private_key_pem.filename}"
   } */
 
@@ -431,4 +438,11 @@ output "data-bucket-domain-name" {
 
 output "data-bucket-region" {
   value = "The ${data.aws_s3_bucket.data_bucket.id} bucket is located in ${data.aws_s3_bucket.data_bucket.region}"
+}
+
+output "max_value" {
+  value = local.maximum
+}
+output "min_value" {
+  value = local.minimum
 }

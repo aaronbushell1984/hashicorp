@@ -365,7 +365,7 @@ module "server_subnet_1" {
   user            = "ubuntu"
   private_key     = tls_private_key.generated.private_key_pem
   subnet_id       = aws_subnet.public_subnets["public_subnet_1"].id
-  security_groups = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
+  security_groups = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id, aws_security_group.main.id]
 }
 
 resource "aws_subnet" "list_subnet" {
@@ -376,7 +376,7 @@ resource "aws_subnet" "list_subnet" {
 }
 
 resource "aws_security_group" "main" {
-  name   = "core-sg"
+  name   = "core-sg-global"
   vpc_id = aws_vpc.vpc.id
 
   dynamic "ingress" {
@@ -388,6 +388,12 @@ resource "aws_security_group" "main" {
       protocol    = ingress.value.protocol
       cidr_blocks = ingress.value.cidr_blocks
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+#    protect against accidental destroy
+#    prevent_destroy = true
   }
 }
 

@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -31,7 +31,7 @@ locals {
     Service   = local.service_name
     AppTeam   = local.app_team
     CreatedBy = local.createdby
- } 
+  }
 }
 
 #Retrieve the list of AZs in the current AWS region
@@ -185,9 +185,9 @@ resource "aws_instance" "ubuntu_server" {
   }
 
   # Leave the first part of the block unchanged and create our `local-exec` provisioner
-  provisioner "local-exec" {
-    command = "chmod 600 ${local_file.private_key_pem.filename}"
-  }
+  #  provisioner "local-exec" {
+  #    command = "chmod 600 ${local_file.private_key_pem.filename}"
+  #  }
 
   provisioner "remote-exec" {
     inline = [
@@ -233,10 +233,10 @@ resource "tls_private_key" "generated" {
   algorithm = "RSA"
 }
 
-resource "local_file" "private_key_pem" {
-  content  = tls_private_key.generated.private_key_pem
-  filename = "MyAWSKey.pem"
-}
+#resource "local_file" "private_key_pem" {
+#  content  = tls_private_key.generated.private_key_pem
+#  filename = "MyAWSKey.pem"
+#}
 
 resource "aws_key_pair" "generated" {
   key_name   = "MyAWSKey"
@@ -307,9 +307,9 @@ resource "aws_instance" "web_server" {
   }
 
   # Leave the first part of the block unchanged and create our `local-exec` provisioner
-  provisioner "local-exec" {
-    command = "chmod 600 ${local_file.private_key_pem.filename}"
-  }
+  #  provisioner "local-exec" {
+  #    command = "chmod 600 ${local_file.private_key_pem.filename}"
+  #  }
 
   provisioner "remote-exec" {
     inline = [
@@ -353,23 +353,10 @@ module "server_subnet_1" {
   security_groups = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
 }
 
-output "public_ip" {
-  value = module.server.public_ip
-}
-
-output "public_dns" {
-  value = module.server.public_dns
-}
-
-output "size" {
-  value = module.server.size
-}
-
-output "public_ip_server_subnet_1" {
-  value = module.server_subnet_1.public_ip
-}
-
-output "public_dns_server_subnet_1" {
-  value = module.server_subnet_1.public_dns
+resource "aws_subnet" "list_subnet" {
+  for_each          = var.env
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = each.value.ip
+  availability_zone = each.value.az
 }
 

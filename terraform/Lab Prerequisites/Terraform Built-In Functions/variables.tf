@@ -63,14 +63,14 @@ variable "phone_number" {
 }
 
 variable "us-east-1-azs" {
-    type = list(string)
-    default = [
-        "us-east-1a",
-        "us-east-1b",
-        "us-east-1c",
-        "us-east-1d",
-        "us-east-1e"
-    ]
+  type = list(string)
+  default = [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c",
+    "us-east-1d",
+    "us-east-1e"
+  ]
 }
 
 variable "ip" {
@@ -88,10 +88,25 @@ variable "env" {
       ip = "10.0.150.0/24"
       az = "us-east-1a"
     }
-    dev  = {
+    dev = {
       ip = "10.0.250.0/24"
       az = "us-east-1e"
     }
   }
 }
 
+variable "num_1" {
+  type        = number
+  description = "Numbers for function labs"
+  default     = 88
+}
+variable "num_2" {
+  type        = number
+  description = "Numbers for function labs"
+  default     = 73
+}
+variable "num_3" {
+  type        = number
+  description = "Numbers for function labs"
+  default     = 52
+}

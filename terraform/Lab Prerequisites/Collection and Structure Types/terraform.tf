@@ -1,9 +1,9 @@
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "krausen"
+    organization = "paradaxiom"
     workspaces {
-      name = "my-aws-app"
+      name = "Collection-And-Structure-Types"
     }
   }
   required_version = ">= 1.0.0"

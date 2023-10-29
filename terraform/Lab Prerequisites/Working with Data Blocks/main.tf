@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -36,24 +36,43 @@ locals {
 
 locals {
   # Common tags to be assigned to all resources
-    prod      = {
-      cidr = "10.0.231.0/24"
-    }
-    dev       = {
-      cidr = "10.0.231.0/24"
-    }
-    App       = local.application
-    Service   = local.service_name
-    AppTeam   = local.app_team
-    CreatedBy = local.createdby
+  prod = {
+    cidr = "10.0.231.0/24"
   }
+  dev = {
+    cidr = "10.0.231.0/24"
+  }
+  App       = local.application
+  Service   = local.service_name
+  AppTeam   = local.app_team
+  CreatedBy = local.createdby
+}
 
 #Retrieve the list of AZs in the current AWS region
 data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
 
-data "aws_s3_bucket" "data-bucket" {
-  bucket = "my-data-lookup-bucket-btk"
+data "aws_s3_bucket" "data_bucket" {
+  bucket = "paradaxiom-udemy-terraform-data-lookup"
+}
+
+resource "aws_iam_policy" "policy" {
+  name        = "data_bucket_policy"
+  description = "Allow access to my bucket"
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:Get*",
+          "s3:List*"
+        ],
+        "Resource" : data.aws_s3_bucket.data_bucket.arn
+      }
+    ]
+  })
+
 }
 
 #Define the VPC 
@@ -203,7 +222,7 @@ resource "aws_instance" "ubuntu_server" {
   }
 
   # Leave the first part of the block unchanged and create our `local-exec` provisioner
- /*  provisioner "local-exec" {
+  /*  provisioner "local-exec" {
     command = "chmod 600 ${local_file.private_key_pem.filename}"
   } */
 
@@ -325,7 +344,7 @@ resource "aws_instance" "web_server" {
   }
 
   # Leave the first part of the block unchanged and create our `local-exec` provisioner
-/*   provisioner "local-exec" {
+  /*   provisioner "local-exec" {
     command = "chmod 600 ${local_file.private_key_pem.filename}"
   } */
 
@@ -378,23 +397,23 @@ resource "aws_subnet" "list_subnet" {
   availability_zone = each.value.az
 }
 
-resource "aws_iam_policy" "policy" {
-  name        = "data_bucket_policy"
-  description = "Deny access to my bucket"
-  policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:Get*",
-                "s3:List*"
-            ],
-            "Resource": "${data.aws_s3_bucket.data-bucket.arn}"
-        }
-    ]
-  })
-}
+#resource "aws_iam_policy" "policy" {
+#  name        = "data_bucket_policy"
+#  description = "Deny access to my bucket"
+#  policy = jsonencode({
+#    "Version" : "2012-10-17",
+#    "Statement" : [
+#      {
+#        "Effect" : "Allow",
+#        "Action" : [
+#          "s3:Get*",
+#          "s3:List*"
+#        ],
+#        "Resource" : "${data.aws_s3_bucket.data-bucket.arn}"
+#      }
+#    ]
+#  })
+#}
 
 output "public_ip" {
   value = module.server.public_ip
@@ -419,4 +438,14 @@ output "public_dns_server_subnet_1" {
 output "phone_number" {
   value     = var.phone_number
   sensitive = true
+}
+
+output "data-bucket-arn" {
+  value = data.aws_s3_bucket.data_bucket.arn
+}
+output "data-bucket-domain-name" {
+  value = data.aws_s3_bucket.data_bucket.bucket_domain_name
+}
+output "data-bucket-region" {
+  value = "The ${data.aws_s3_bucket.data_bucket.id} bucket is located in ${data.aws_s3_bucket.data_bucket.region}"
 }
