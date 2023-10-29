@@ -3,10 +3,17 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+# direct aws key and secret was needed for local
+
 variable "aws_profile" {
   type    = string
-  default = "AdministratorAccess-258306410398"
+  default = "short-term"
 }
+
+#variable "aws_profile" {
+#  type    = string
+#  default = "AdministratorAccess-258306410398"
+#}
 
 variable "vpc_name" {
   type    = string

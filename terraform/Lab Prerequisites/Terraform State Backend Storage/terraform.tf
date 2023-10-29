@@ -1,4 +1,12 @@
 terraform {
+  backend "s3" {
+    # Replace this with your bucket name!
+    bucket = "terraform-state-backend-test-ab"
+    key = "prod/infra"
+    region = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt = true
+  }
   required_version = ">= 1.0.0"
   required_providers {
     aws = {

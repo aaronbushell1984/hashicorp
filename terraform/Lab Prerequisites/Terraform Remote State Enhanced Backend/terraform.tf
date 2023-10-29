@@ -1,6 +1,10 @@
 terraform {
-  backend "local" {
-    path = "terraform.tfstate"
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "paradaxiom"
+    workspaces {
+      name = "paradaxiom-udemy"
+    }
   }
   required_version = ">= 1.0.0"
   required_providers {

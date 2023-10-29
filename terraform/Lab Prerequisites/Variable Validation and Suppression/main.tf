@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -31,7 +31,7 @@ locals {
     Service   = local.service_name
     AppTeam   = local.app_team
     CreatedBy = local.createdby
- } 
+  }
 }
 
 #Retrieve the list of AZs in the current AWS region

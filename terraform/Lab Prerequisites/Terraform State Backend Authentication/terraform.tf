@@ -1,6 +1,9 @@
 terraform {
-  backend "local" {
-    path = "terraform.tfstate"
+  backend "s3" {
+    # Replace this with your bucket name!
+    bucket = "terraform-state-backend-test-ab"
+    key = "prod/infra"
+    region = "us-east-1"
   }
   required_version = ">= 1.0.0"
   required_providers {

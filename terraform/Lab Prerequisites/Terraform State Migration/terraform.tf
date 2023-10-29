@@ -1,11 +1,23 @@
 terraform {
+
+#  multiple backends used to showcase migrating states
+
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "Enterprise-Cloud"
+    organization = "paradaxiom"
     workspaces {
-      name = "my-aws-app"
+      name = "State-Migration"
     }
   }
+
+#  backend "s3" {
+#    bucket = "paradaxiom-udemy-terraform-backend"
+#    key = "dev/aws_infra"
+#    region = "us-east-1"
+#    dynamodb_table = "udemy-terraform-locks"
+#    encrypt = true
+#  }
+
   required_version = ">= 1.0.0"
   required_providers {
     aws = {

@@ -6,7 +6,7 @@ Contributors: Bryan and Gabe
 
 # Configure the AWS Provider
 provider "aws" {
-  region   = "us-east-1"
+  region  = "us-east-1"
   profile = var.aws_profile
 }
 
@@ -14,6 +14,24 @@ locals {
   team        = "api_mgmt_dev"
   application = "corp_api"
   server_name = "ec2-${var.environment}-api-${var.variables_sub_az}"
+}
+
+locals {
+  service_name = "Automation"
+  app_team     = "Cloud Team"
+  createdby    = "terraform"
+}
+
+locals {
+  # Common tags to be assigned to all resources
+  common_tags = {
+    Name = local.server_name
+    Owner = local.team
+    App = local.application
+    Service = local.service_name
+    AppTeam = local.app_team
+    CreatedBy = local.createdby
+  }
 }
 
 #Retrieve the list of AZs in the current AWS region
@@ -301,12 +319,7 @@ resource "aws_instance" "web_server" {
       "sudo sh /tmp/assets/setup-web.sh",
     ]
   }
-  tags = {
-    Name  = local.server_name
-    Owner = local.team
-    App   = local.application
-  }
-
+  tags = local.common_tags
   lifecycle {
     ignore_changes = [security_groups]
   }

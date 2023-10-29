@@ -23,5 +23,8 @@
 .terraformrc.*
 .vscode/
 
+# Test keys
+*pem
+
 # IDE
 .idea

@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "aws_profile" {
   type    = string
-  default = "AdministratorAccess-258306410398"
+  default = "short-term"
 }
 
 variable "vpc_name" {
